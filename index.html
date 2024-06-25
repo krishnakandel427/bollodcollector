@@ -10,10 +10,11 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            text-align: center;
         }
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -21,22 +22,27 @@
         h1, h2 {
             color: #333;
         }
+        .big-text {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
         ul {
             list-style: none;
             padding: 0;
         }
         li {
             background: #eee;
-            margin: 5px 0;
-            padding: 10px;
+            margin: 10px 0;
+            padding: 20px;
             border-radius: 5px;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Clan Info</h1>
-        <div id="clan-info"></div>
+        <div id="clan-info" class="big-text"></div>
         
         <h2>Members</h2>
         <ul id="members-list"></ul>
@@ -46,8 +52,8 @@
     </div>
 
     <script>
-        const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-        const CLAN_TAG = '2PPVVCY9L';  // Without the '#' symbol
+        const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';  // Replace with your actual API key
+        const CLAN_TAG = '2PPVVCY9L';  // Replace with your clan tag, without the '#' symbol
         const BASE_URL = 'https://api.clashofclans.com/v1';
 
         const fetchFromAPI = async (endpoint) => {
@@ -56,36 +62,51 @@
                     'Authorization': `Bearer ${API_KEY}`
                 }
             });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             return response.json();
         };
 
         const fetchClanData = async () => {
-            const clanData = await fetchFromAPI(`/clans/%23${CLAN_TAG}`);
-            document.getElementById('clan-info').innerHTML = `
-                <h2>${clanData.name}</h2>
-                <p>${clanData.description}</p>
-                <p>Members: ${clanData.members}</p>
-            `;
+            try {
+                const clanData = await fetchFromAPI(`/clans/%23${CLAN_TAG}`);
+                document.getElementById('clan-info').innerHTML = `
+                    <div>Name: ${clanData.name}</div>
+                    <div>Description: ${clanData.description}</div>
+                    <div>Members: ${clanData.members}</div>
+                `;
+            } catch (error) {
+                document.getElementById('clan-info').innerHTML = `Error: ${error.message}`;
+            }
         };
 
         const fetchMembersData = async () => {
-            const membersData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/members`);
-            const membersList = document.getElementById('members-list');
-            membersData.items.forEach(member => {
-                const li = document.createElement('li');
-                li.textContent = `${member.name} - ${member.role}`;
-                membersList.appendChild(li);
-            });
+            try {
+                const membersData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/members`);
+                const membersList = document.getElementById('members-list');
+                membersData.items.forEach(member => {
+                    const li = document.createElement('li');
+                    li.textContent = `${member.name} - ${member.role}`;
+                    membersList.appendChild(li);
+                });
+            } catch (error) {
+                document.getElementById('members-list').innerHTML = `Error: ${error.message}`;
+            }
         };
 
         const fetchWarlogData = async () => {
-            const warlogData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/warlog`);
-            const warlogList = document.getElementById('warlog-list');
-            warlogData.items.forEach(war => {
-                const li = document.createElement('li');
-                li.textContent = `${war.attacker.name} vs ${war.defender.name}`;
-                warlogList.appendChild(li);
-            });
+            try {
+                const warlogData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/warlog`);
+                const warlogList = document.getElementById('warlog-list');
+                warlogData.items.forEach(war => {
+                    const li = document.createElement('li');
+                    li.textContent = `${war.attacker.name} vs ${war.defender.name}`;
+                    warlogList.appendChild(li);
+                });
+            } catch (error) {
+                document.getElementById('warlog-list').innerHTML = `Error: ${error.message}`;
+            }
         };
 
         const init = async () => {
@@ -98,3 +119,4 @@
     </script>
 </body>
 </html>
+
