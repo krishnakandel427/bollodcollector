@@ -3,88 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blood Collector Clan - Clash of Clans</title>
+    <title>Clash of Clans Clan Info</title>
     <style>
-        body, html {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            color: white;
-            background: url(441437828_374728205595421_8738298161802330235_n.jpg) no-repeat center center fixed; 
-            background-size: cover;
         }
         .container {
-            text-align: center;
-            padding: 50px;
-            background: rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
+        h1, h2 {
+            color: #333;
         }
-        .section {
-            margin: 20px 0;
-        }
-        .members-list, .achievements-list {
-            list-style-type: none;
+        ul {
+            list-style: none;
             padding: 0;
         }
-        .members-list li, .achievements-list li {
-            background: rgba(255, 255, 255, 0.2);
-            margin: 10px 0;
+        li {
+            background: #eee;
+            margin: 5px 0;
             padding: 10px;
             border-radius: 5px;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Blood Collector Clan</h1>
-        <p>Welcome to the official page of the Blood Collector Clan in Clash of Clans!</p>
+        <h1>Clan Info</h1>
+        <div id="clan-info"></div>
         
-        <div class="section">
-            <h2>Clan Members</h2>
-            <ul class="members-list">
-                <li>Leader: krishna prasad</li>
-                <li>Co-Leader: hero jenish 2</li>
-                <li>co-leader: Aashray gorkhali</li>
-                <li>co-leader: jenish neupane</li>
-                <li>co-leader: sky land</li>
-                <li>co-leader: AArav</li>
-                <li>co-leader: kopa</li>
-                <li>co-leader: honey</li>
-                <li>co-leader: act of god</li>
-                <li>co-leader: sushil thapa</li>
-                <li>Member: $$$$$$$$ </li>
-                <li>Member: jster</li>
-                <li>jenish don ho</li>
-                <!-- Add more members as needed -->
-            </ul>
-        </div>
+        <h2>Members</h2>
+        <ul id="members-list"></ul>
         
-        <div class="section">
-            <h2>Achievements</h2>
-            <ul class="achievements-list">
-                <li>members :- 47/50 </li>
-                <li>Clan Level: 10</li>
-                <li>clan war league :- Gold league II</li>
-                <li>Required town hall level :- 13 </li>
-                <!-- Add more achievements as needed -->
-            </ul>
-        </div>
-        
-        <div class="section">
-            <h2>About Us</h2>
-            <p>We are a competitive and friendly clan, always looking for active and loyal members. Join us for wars, clan games, and much more!</p>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2024 Blood Collector Clan. All rights reserved.</p>
-        </div>
+        <h2>War Log</h2>
+        <ul id="warlog-list"></ul>
     </div>
+
+    <script>
+        const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+        const CLAN_TAG = '2PPVVCY9L';  // Without the '#' symbol
+        const BASE_URL = 'https://api.clashofclans.com/v1';
+
+        const fetchFromAPI = async (endpoint) => {
+            const response = await fetch(`${BASE_URL}${endpoint}`, {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`
+                }
+            });
+            return response.json();
+        };
+
+        const fetchClanData = async () => {
+            const clanData = await fetchFromAPI(`/clans/%23${CLAN_TAG}`);
+            document.getElementById('clan-info').innerHTML = `
+                <h2>${clanData.name}</h2>
+                <p>${clanData.description}</p>
+                <p>Members: ${clanData.members}</p>
+            `;
+        };
+
+        const fetchMembersData = async () => {
+            const membersData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/members`);
+            const membersList = document.getElementById('members-list');
+            membersData.items.forEach(member => {
+                const li = document.createElement('li');
+                li.textContent = `${member.name} - ${member.role}`;
+                membersList.appendChild(li);
+            });
+        };
+
+        const fetchWarlogData = async () => {
+            const warlogData = await fetchFromAPI(`/clans/%23${CLAN_TAG}/warlog`);
+            const warlogList = document.getElementById('warlog-list');
+            warlogData.items.forEach(war => {
+                const li = document.createElement('li');
+                li.textContent = `${war.attacker.name} vs ${war.defender.name}`;
+                warlogList.appendChild(li);
+            });
+        };
+
+        const init = async () => {
+            await fetchClanData();
+            await fetchMembersData();
+            await fetchWarlogData();
+        };
+
+        window.onload = init;
+    </script>
 </body>
 </html>
